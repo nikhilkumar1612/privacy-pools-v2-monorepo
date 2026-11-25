@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JAW PRF keys · Privacy Pools POC</title>
+  <style>
+    body { font-family: monospace; padding: 1rem; background: #0d0d0d; color: #e0e0e0; max-width: 60rem; }
+    h1 { font-size: 1.1rem; } h2 { font-size: 0.95rem; color: #aaa; margin-top: 1.5rem; }
+    p { color: #999; font-size: 0.85rem; }
+    pre { background: #1a1a1a; border: 1px solid #333; padding: 1rem; white-space: pre-wrap; word-break: break-all; min-height: 3rem; }
+    button { margin: 0.25rem 0.25rem 0.75rem 0; padding: 0.5rem 0.9rem; font-family: monospace; cursor: pointer; background: #222; color: #e0e0e0; border: 1px solid #444; }
+    button:hover { background: #333; }
+    .ok { color: #6c6; } .bad { color: #e66; }
+  </style>
+</head>
+<body>
+  <h1>Phase 1 · Privacy Pools keys from a passkey (PRF)</h1>
+  <p>
+    Creates a passkey for this site, reads its PRF output, and derives the four Privacy Pools keys with
+    the SDK's own derivation. Only fingerprints (short hashes) of the secret keys are shown. Compare them
+    across reloads, browsers and devices: the same passkey must always give the same fingerprints.
+  </p>
+
+  <h2>1. Passkey</h2>
+  <button id="btn-create">Create passkey (with PRF)</button>
+  <pre id="out-create">No passkey created in this session. If you already have one for this site (synced or not), skip to step 2.</pre>
+
+  <h2>2. Derive keys</h2>
+  <button id="btn-derive">Use passkey → derive keys</button>
+  <pre id="out-derive">Click to pick a passkey and derive.</pre>
+
+  <h2>3. Runs on this browser</h2>
+  <button id="btn-copy">Copy report</button>
+  <button id="btn-clear">Clear history</button>
+  <pre id="out-history"></pre>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
