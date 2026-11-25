@@ -33,6 +33,9 @@ export const config = {
         "0x0000000000000000000000000000000000000000") as Hex,
     // Block the contracts were deployed at, so event scans don't start at 0.
     deploymentBlock: BigInt(requireEnv("DEPLOYMENT_BLOCK")),
+    // Blocks per eth_getLogs call when scanning events. The SDK default is
+    // 10,000; providers that accept larger ranges make scans far faster.
+    logChunkBlocks: BigInt(optionalEnv("LOG_CHUNK_BLOCKS") ?? "10000"),
 
     aspUrl: requireEnv("ASP_URL"),
     aspPublicKey: optionalEnv("ASP_PUBLIC_KEY") as Hex | undefined,

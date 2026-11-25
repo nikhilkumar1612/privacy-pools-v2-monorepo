@@ -16,15 +16,10 @@ import {
     PoseidonHashService,
     ViemRPCInteractor,
 } from "@privacy-pools-v2/evm-sdk";
-import { numberToHex } from "viem";
+import { createPublicClient, http, numberToHex } from "viem";
 
 import { chain } from "./chain.js";
 import { config } from "./config.js";
-
-// Mirrors evm-sdk's SUPPORTED_CHAIN_IDS (constant/RPCInteractor.ts: Sepolia,
-// Arbitrum, Base), which its type definitions list but its built module does
-// not export at runtime.
-const RPC_INTERACTOR_CHAIN_IDS: ReadonlySet<number> = new Set([11155111, 42161, 8453]);
 
 export type ProtocolKeys = {
     privateNullifyingKey: Hex;
@@ -76,14 +71,16 @@ export async function createPoolSession(
         level: (process.env["LOG_LEVEL"] ?? "info") as "info",
     });
 
-    // The SDK's RPC interactor only accepts a `chain` in SUPPORTED_CHAIN_IDS
-    // (Sepolia, Arbitrum, Base), though 0xbow runs BNB Chain in production.
-    // `chain` is optional for these reads, so it is left out elsewhere; the
-    // wallet client that signs still uses the real chain.
-    const rpcInteractor = ViemRPCInteractor.create(
+    // Built with the constructor, not ViemRPCInteractor.create(): create()
+    // drops `chunkSize`, and it rejects chains outside its SUPPORTED_CHAIN_IDS
+    // (Sepolia, Arbitrum, Base) though 0xbow runs BNB Chain in production.
+    // A large LOG_CHUNK_BLOCKS turns the Keystore and pool scans (every log
+    // since deployment) from ~1,600 RPC calls into a handful; the SDK halves a
+    // range by itself when a provider rejects it as too large.
+    const rpcInteractor = new ViemRPCInteractor(
         {
-            rpcUrl: config.rpcUrl,
-            ...(RPC_INTERACTOR_CHAIN_IDS.has(chain.id) ? { chain } : {}),
+            publicClient: createPublicClient({ chain, transport: http(config.rpcUrl) }),
+            chunkSize: config.logChunkBlocks,
         },
         { logger },
     );
