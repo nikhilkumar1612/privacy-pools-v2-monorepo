@@ -36,9 +36,11 @@ export async function ragequit(
     receipt: { txHash: Hex; blockNumber: Hex; status: boolean };
 }> {
     const prepared = await session.prepareRageQuit({ commitment });
+    // The SDK now returns the transaction as `ragequitTx` ({ to, data, value }).
     const txHash = await walletClient.sendTransaction({
-        to: prepared.to as `0x${string}`,
-        data: prepared.callData as `0x${string}`,
+        to: prepared.ragequitTx.to as `0x${string}`,
+        data: prepared.ragequitTx.data as `0x${string}`,
+        value: BigInt(prepared.ragequitTx.value),
     });
     const receipt = await rpcInteractor.waitForTransactionReceipt(txHash as Hex);
     return {

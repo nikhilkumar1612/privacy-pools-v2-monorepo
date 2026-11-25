@@ -1,4 +1,8 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+
+// override: .env wins over variables already in the shell. A shell profile that
+// exports RPC_URL (e.g. for Sepolia) would otherwise silently replace this file's.
+loadEnv({ override: true });
 
 import type { Hex } from "@privacy-pools-v2/evm-sdk";
 
@@ -24,6 +28,11 @@ export const config = {
     keystoreAddress: requireEnv("KEYSTORE_ADDRESS") as Hex,
     poolAddress: requireEnv("POOL_ADDRESS") as Hex,
     aspRegistryAddress: requireEnv("ASP_REGISTRY_ADDRESS") as Hex,
+    // Only needed for swaps; the zero address leaves it to the relayer.
+    relaySwapsAddress: (optionalEnv("RELAY_SWAPS_ADDRESS") ??
+        "0x0000000000000000000000000000000000000000") as Hex,
+    // Block the contracts were deployed at, so event scans don't start at 0.
+    deploymentBlock: BigInt(requireEnv("DEPLOYMENT_BLOCK")),
 
     aspUrl: requireEnv("ASP_URL"),
     aspPublicKey: optionalEnv("ASP_PUBLIC_KEY") as Hex | undefined,
